@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
-
+from .tests import create_question
 from .models import Choice, Question
-
+from .forms import NameForm
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -49,3 +49,29 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+
+
+
+def get_name(request):
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = NameForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            q = create_question(form.cleaned_data['question_text'],0)
+            q.choice_set.create(choice_text=form.cleaned_data['choice1'], votes=0)
+            q.choice_set.create(choice_text=form.cleaned_data['choice2'], votes=0)
+            q.choice_set.create(choice_text=form.cleaned_data['choice3'], votes=0)
+            q.choice_set.create(choice_text=form.cleaned_data['choice4'], votes=0)
+            q.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect(reverse('polls:index'))
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = NameForm()
+
+    return render(request, 'polls/name.html', {'form': form})

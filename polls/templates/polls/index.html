@@ -8,6 +8,7 @@
         <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
     {% endfor %}
     </ul>
+<a href="{% url 'polls:fillform' %}">Add your own Question...</a>
 {% else %}
     <p>No polls are available.</p>
 {% endif %}
